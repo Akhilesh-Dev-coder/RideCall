@@ -35,7 +35,9 @@ export const PermissionsScreen: React.FC = () => {
 
     const hasMicrophone = await PermissionsAndroid.check(PermissionsAndroid.PERMISSIONS.RECORD_AUDIO);
     const hasPhoneState = await PermissionsAndroid.check(PermissionsAndroid.PERMISSIONS.READ_PHONE_STATE);
-    const hasCallAnswer = await PermissionsAndroid.check(PermissionsAndroid.PERMISSIONS.ANSWER_PHONE_CALLS);
+    const hasCallAnswer = await PermissionsAndroid.check(
+      PermissionsAndroid.PERMISSIONS.ANSWER_PHONE_CALLS || 'android.permission.ANSWER_PHONE_CALLS'
+    );
     const hasContacts = await PermissionsAndroid.check(PermissionsAndroid.PERMISSIONS.READ_CONTACTS);
     
     let hasBluetooth = true;
@@ -71,7 +73,7 @@ export const PermissionsScreen: React.FC = () => {
       const permissionsToRequest = [
         PermissionsAndroid.PERMISSIONS.RECORD_AUDIO,
         PermissionsAndroid.PERMISSIONS.READ_PHONE_STATE,
-        PermissionsAndroid.PERMISSIONS.ANSWER_PHONE_CALLS,
+        PermissionsAndroid.PERMISSIONS.ANSWER_PHONE_CALLS || 'android.permission.ANSWER_PHONE_CALLS',
         PermissionsAndroid.PERMISSIONS.READ_CONTACTS,
         PermissionsAndroid.PERMISSIONS.SEND_SMS,
       ];

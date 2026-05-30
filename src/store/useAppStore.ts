@@ -1,7 +1,7 @@
 import { create } from 'zustand';
 import { NativeModules, Platform } from 'react-native';
 
-const { RideCallModule } = NativeModules;
+const RideCallModule = NativeModules?.RideCallModule;
 
 export interface CallLog {
   id: string;
@@ -103,7 +103,10 @@ export const useAppStore = create<AppState>((set, get) => ({
   completeOnboarding: () => set({ onboardingCompleted: true, currentScreen: 'permissions' }),
   
   setHelmetModeActive: async (active) => {
-    if (Platform.OS !== 'android') return;
+    if (Platform.OS !== 'android' || !RideCallModule) {
+      console.warn('RideCallModule is not available (running on non-Android or unsupported environment).');
+      return;
+    }
     try {
       if (active) {
         await RideCallModule.startForegroundService();
@@ -127,7 +130,10 @@ export const useAppStore = create<AppState>((set, get) => ({
   setDefaultDialerActive: (active) => set({ defaultDialerActive: active }),
   
   checkTwsStatus: async () => {
-    if (Platform.OS !== 'android') return;
+    if (Platform.OS !== 'android' || !RideCallModule) {
+      console.log('Skipping Bluetooth TWS check: RideCallModule not available.');
+      return;
+    }
     try {
       const isConnected = await RideCallModule.isBluetoothConnected();
       set({ 
@@ -140,7 +146,10 @@ export const useAppStore = create<AppState>((set, get) => ({
   },
   
   checkDialerStatus: async () => {
-    if (Platform.OS !== 'android') return;
+    if (Platform.OS !== 'android' || !RideCallModule) {
+      console.log('Skipping dialer status check: RideCallModule not available.');
+      return;
+    }
     try {
       const isDefault = await RideCallModule.checkDefaultDialer();
       set({ defaultDialerActive: isDefault });
@@ -150,14 +159,19 @@ export const useAppStore = create<AppState>((set, get) => ({
   },
   
   requestDialerRole: async () => {
-    if (Platform.OS !== 'android') return;
+    if (Platform.OS !== 'android' || !RideCallModule) {
+      console.warn('Cannot request default dialer: RideCallModule not available.');
+      return;
+    }
     try {
       const requested = await RideCallModule.requestDefaultDialer();
       if (requested) {
         // We check periodically or rely on Activity callbacks, but we can do a quick check
         setTimeout(async () => {
-          const isDefault = await RideCallModule.checkDefaultDialer();
-          set({ defaultDialerActive: isDefault });
+          if (RideCallModule) {
+            const isDefault = await RideCallModule.checkDefaultDialer();
+            set({ defaultDialerActive: isDefault });
+          }
         }, 1500);
       }
     } catch (e) {
@@ -223,7 +237,7 @@ export const useAppStore = create<AppState>((set, get) => ({
         setCallState(false);
       }, 2000);
     } else {
-      if (Platform.OS === 'android') {
+      if (Platform.OS === 'android' && RideCallModule) {
         try {
           await RideCallModule.answerCall();
         } catch (e) {
@@ -243,7 +257,7 @@ export const useAppStore = create<AppState>((set, get) => ({
         setCallState(false);
       }, 1000);
     } else {
-      if (Platform.OS === 'android') {
+      if (Platform.OS === 'android' && RideCallModule) {
         try {
           await RideCallModule.rejectCall();
         } catch (e) {
@@ -258,7 +272,7 @@ export const useAppStore = create<AppState>((set, get) => ({
       const mergedSettings = { ...state.settings, ...newSettings };
       
       // Push settings to Android native storage cache
-      if (Platform.OS === 'android') {
+      if (Platform.OS === 'android' && RideCallModule) {
         RideCallModule.syncSettings(mergedSettings);
       }
       
@@ -267,7 +281,7 @@ export const useAppStore = create<AppState>((set, get) => ({
   },
   
   triggerMockCall: async () => {
-    if (Platform.OS === 'android') {
+    if (Platform.OS === 'android' && RideCallModule) {
       try {
         await RideCallModule.triggerTestCall();
       } catch (e) {
@@ -276,7 +290,7 @@ export const useAppStore = create<AppState>((set, get) => ({
         get().setIncomingCall('+91 98765 43210', 'Arun (Mock Rider)', true);
       }
     } else {
-      // iOS / Web testing fallback
+      // iOS / Web / Expo Go testing fallback
       get().setIncomingCall('+1 555-0199', 'Arun (Mock Rider)', true);
     }
   },
