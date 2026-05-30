@@ -24,6 +24,42 @@ export const Colors = {
   },
 } as const;
 
+export const CyberTheme = {
+  bg: '#0A0B10',          // Deep premium cyber-slate black
+  bgElement: '#141722',   // Cockpit panel grey-blue
+  bgInput: '#1F2438',     // Dark text field input
+  text: '#FFFFFF',
+  textSecondary: '#8B9BBA', // Sleek dashboard label grey
+  cyan: '#66FCF1',        // Futuristic glowing neon cyan (Primary action/state)
+  blue: '#1A8CFF',        // Digital cobalt blue
+  red: '#FF1E56',         // Tactical warning neon red
+  green: '#00FF66',       // Success state tachometer green
+  yellow: '#FFAC41',      // Warning warning indicator orange-yellow
+  border: '#282F48',      // Sleek panel border blue-grey
+  borderGlow: '#4DFCE4',  // Cyan border glow alpha-tinted
+  glowCyan: {
+    shadowColor: '#66FCF1',
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 0.8,
+    shadowRadius: 10,
+    elevation: 8,
+  },
+  glowGreen: {
+    shadowColor: '#00FF66',
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 0.8,
+    shadowRadius: 10,
+    elevation: 8,
+  },
+  glowRed: {
+    shadowColor: '#FF1E56',
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 0.8,
+    shadowRadius: 10,
+    elevation: 8,
+  }
+} as const;
+
 export type ThemeColor = keyof typeof Colors.light & keyof typeof Colors.dark;
 
 export const Fonts = Platform.select({
